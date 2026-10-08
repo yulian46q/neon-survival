@@ -17,18 +17,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Copiar el juego al proyecto de escritorio
-        run: Copy-Item web\* desktop\ -Recurse -Force
       - name: Instalar dependencias
-        working-directory: desktop
+        working-directory: neon-survival-pc
         run: npm install
       - name: Compilar el exe
-        working-directory: desktop
-        run: npm run dist
+        working-directory: neon-survival-pc
+        run: npx electron-builder --win portable --publish never
       - uses: actions/upload-artifact@v4
         with:
           name: NeonSurvival-Windows
-          path: desktop/dist/*.exe
+          path: neon-survival-pc/dist/*.exe
 
   android-apk:
     name: Android (.apk)
@@ -49,7 +47,7 @@ jobs:
           npm init -y
           npm i @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
           mkdir www
-          cp ../web/* www/
+          cp ../neon-survival-pc/index.html ../neon-survival-pc/manifest.json ../neon-survival-pc/sw.js ../neon-survival-pc/icon-*.png www/
           npx cap init "Neon Survival" com.neonsurvival.game --web-dir=www
           npx cap add android
           npx cap sync android
