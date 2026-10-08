@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#030712">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Neon Survival</title>
+<style>
+:root{--bg:#030712;--panel:rgba(15,23,42,.92);--line:#334155;--c:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#fb7185;--p:#f472b6;--t:#e2e8f0;--m:#94a3b8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;color:var(--t);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;overscroll-behavior:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+body{min-height:100dvh;background:radial-gradient(900px 500px at 50% -10%,#1e3a8a66,transparent),linear-gradient(135deg,#030712,#0f172a)}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.022) 0 1px,transparent 1px 3px);pointer-events:none;z-index:60}
+#app{max-width:520px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) 14px calc(120px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;cursor:pointer}
+.logo{text-align:center;font-family:ui-monospace,Consolas,monospace;font-weight:900;letter-spacing:3px;font-size:2rem;color:var(--c);text-shadow:0 0 18px rgba(56,189,248,.8);margin:18px 0 2px}
+.sub{text-align:center;color:var(--m);font-size:.85rem;margin-bottom:18px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.row{display:flex;align-items:center;gap:10px}.sp{flex:1}
+.btn{display:block;width:100%;min-height:54px;border:0;border-radius:12px;font-weight:800;font-size:1rem;color:#fff;background:linear-gradient(90deg,#38bdf8,#2563eb);box-shadow:0 4px 14px rgba(37,99,235,.35);margin-bottom:10px;transition:transform .12s,opacity .12s;position:relative}
+.btn:active{transform:scale(.97)}
+.btn.big{min-height:68px;font-size:1.25rem;letter-spacing:1px;background:linear-gradient(90deg,#f472b6,#8b5cf6,#38bdf8);animation:pulse 1.8s infinite}
+.btn.ghost{background:rgba(30,41,59,.9);border:1px solid var(--line);box-shadow:none}
+.btn.gold{background:linear-gradient(90deg,#f59e0b,#ef4444)}
+.btn.green{background:linear-gradient(90deg,#10b981,#0ea5e9)}
+.btn:disabled{background:#1f2937;color:#64748b;box-shadow:none;animation:none;cursor:not-allowed}
+.dot{position:absolute;top:8px;right:12px;width:12px;height:12px;border-radius:50%;background:var(--r);box-shadow:0 0 10px var(--r);animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 24px rgba(244,114,182,.75);transform:scale(1.015)}}
+.bar{height:12px;background:#1f2937;border-radius:6px;overflow:hidden;flex:1}
+.bar i{display:block;height:100%;border-radius:6px;transition:width .35s}
+.bar.hp i{background:linear-gradient(90deg,#10b981,#34d399)}
+.bar.heat i{background:linear-gradient(90deg,#fbbf24,#fb7185)}
+.bar.xp i{background:linear-gradient(90deg,#8b5cf6,#38bdf8)}
+.bar.danger{animation:dangerp .7s infinite}
+@keyframes dangerp{50%{box-shadow:0 0 14px rgba(251,113,133,.9)}}
+.hud .row{margin-bottom:6px;font-weight:700;font-size:.9rem}.hud .row span{min-width:76px}
+.credits{display:flex;align-items:baseline;gap:8px}
+.credits small{color:var(--m);letter-spacing:2px;font-size:.7rem}
+.credits b{font-size:2rem;color:var(--g);text-shadow:0 0 14px rgba(52,211,153,.6);font-family:ui-monospace,monospace}
+.combo{color:var(--y);font-weight:900;text-shadow:0 0 12px rgba(251,191,36,.8)}
+.perks{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;font-size:1.25rem}
+.node{text-align:center;font-family:ui-monospace,monospace;letter-spacing:3px;color:var(--c);font-weight:800;margin:6px 0 2px}
+.nodesub{text-align:center;color:var(--m);font-size:.78rem;margin-bottom:10px}
+.res{border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:.92rem;line-height:1.4;animation:pop .35s}
+.res.ok{background:rgba(16,185,129,.12);border:1px solid #10b981}.res.bad{background:rgba(239,68,68,.12);border:1px solid #ef4444}.res.info{background:rgba(56,189,248,.1);border:1px solid #38bdf8}
+.critt{color:var(--y);text-shadow:0 0 10px var(--y);font-size:1.05rem}
+@keyframes pop{from{transform:scale(.94);opacity:0}}
+.chip{display:inline-block;margin:5px 5px 0 0;padding:2px 8px;border-radius:999px;font-size:.78rem;font-weight:800;background:#0b1220;border:1px solid #334155}
+.chip.g{color:var(--g);border-color:#065f46}.chip.b{color:var(--r);border-color:#7f1d1d}.chip.n{color:var(--m)}
+.card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--c);border-radius:14px;padding:12px;margin-bottom:10px;animation:slide .3s both;min-height:78px}
+.card:nth-child(2){animation-delay:.05s}.card:nth-child(3){animation-delay:.1s}
+@keyframes slide{from{transform:translateX(24px);opacity:0}}
+.card:active{transform:scale(.98)}
+.card.safe{border-left-color:var(--g)}.card.mid{border-left-color:var(--y)}.card.high{border-left-color:var(--r)}.card.util{border-left-color:var(--p)}
+.card:disabled{opacity:.45}
+.ci{font-size:2rem;width:44px;text-align:center}.cb{flex:1;min-width:0}
+.cn{font-weight:800;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cd{color:var(--m);font-size:.82rem;margin-top:2px}
+.badge{font-size:.62rem;padding:1px 6px;border-radius:6px;font-weight:900;letter-spacing:1px;background:#1e293b}
+.badge.safe{color:var(--g)}.badge.mid{color:var(--y)}.badge.high{color:var(--r)}.badge.util{color:var(--p)}
+.cp{font-family:ui-monospace,monospace;font-weight:900;font-size:1.15rem;color:var(--c)}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:40;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(to top,#030712 70%,transparent)}
+.dock .in{max-width:520px;margin:0 auto}.dock .btn{margin:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{text-align:center}.stat b{display:block;font-size:1.3rem;font-family:ui-monospace,monospace}.stat small{color:var(--m)}
+h2{font-family:ui-monospace,monospace;color:var(--c);letter-spacing:2px;margin:6px 0 12px;text-align:center}
+.pips{display:flex;gap:3px;margin-top:5px}.pips i{width:100%;height:6px;border-radius:3px;background:#1f2937}.pips i.on{background:var(--c);box-shadow:0 0 6px var(--c)}
+.big-end{text-align:center;font-family:ui-monospace,monospace;font-size:1.5rem;font-weight:900;margin:14px 0 4px;letter-spacing:2px}
+.end-ok{color:var(--g);text-shadow:0 0 16px var(--g)}.end-bad{color:var(--r);text-shadow:0 0 16px var(--r)}
+.shardsbig{text-align:center;font-size:2.6rem;font-weight:900;color:var(--y);text-shadow:0 0 18px rgba(251,191,36,.7);font-family:ui-monospace,monospace}
+.warn{color:var(--r);font-weight:800;text-align:center;font-size:.85rem;margin-bottom:8px;animation:dangerp .8s infinite}
+.mback{position:fixed;inset:0;background:rgba(2,6,23,.82);z-index:70;display:flex;align-items:center;justify-content:center;padding:16px;animation:pop .2s}
+.mbox{background:#0f172a;border:1px solid var(--c);border-radius:16px;padding:18px;max-width:420px;width:100%;box-shadow:0 0 30px rgba(56,189,248,.3);max-height:90dvh;overflow:auto}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:12px 0}
+.day{background:#111827;border:1px solid var(--line);border-radius:8px;padding:6px 2px;text-align:center;font-size:.7rem}
+.day.now{border-color:var(--y);box-shadow:0 0 10px rgba(251,191,36,.6)}.day.done{opacity:.45}
+.day b{display:block;font-size:.9rem;color:var(--y)}
+#toasts{position:fixed;top:max(10px,env(safe-area-inset-top));left:0;right:0;z-index:80;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
+.toast{background:#0f172a;border:1px solid var(--y);color:var(--t);padding:8px 14px;border-radius:10px;font-weight:700;font-size:.85rem;animation:tin .3s,tout .4s 2.4s forwards;box-shadow:0 0 14px rgba(251,191,36,.35)}
+@keyframes tin{from{transform:translateY(-14px);opacity:0}}@keyframes tout{to{opacity:0;transform:translateY(-10px)}}
+.float{position:fixed;z-index:75;font-weight:900;font-size:1.5rem;pointer-events:none;text-shadow:0 0 10px currentColor;animation:fl 1s forwards;font-family:ui-monospace,monospace;transform:translateX(-50%)}
+.float.good{color:var(--g)}.float.bad{color:var(--r)}.float.gold{color:var(--y);font-size:2rem}
+@keyframes fl{to{transform:translate(-50%,-80px);opacity:0}}
+.flash{position:fixed;inset:0;z-index:65;pointer-events:none;animation:fo .45s forwards}
+@keyframes fo{from{opacity:.55}to{opacity:0}}
+.part{position:fixed;z-index:75;pointer-events:none;font-size:1.1rem;animation:pt .8s forwards}
+@keyframes pt{to{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0}}
+.shake{animation:sh .35s}
+@keyframes sh{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.pill{display:inline-block;background:#111827;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:.8rem;color:var(--m)}
+.small{color:var(--m);font-size:.78rem}
+.r-common{color:var(--m)}.r-rare{color:var(--c)}.r-epic{color:var(--p)}.r-leg{color:var(--y);text-shadow:0 0 8px var(--y)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toasts"></div>
+<div id="modal"></div>
+<script>
+'use strict';
+/* ═══════════════ UTILIDADES ═══════════════ */
+const $=s=>document.querySelector(s);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const ri=(a,b)=>Math.floor(rnd(a,b+1));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const fmt=n=>Math.round(n).toLocaleString('es');
+const dstr=d=>d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+const today=()=>dstr(new Date());
+const yesterday=()=>dstr(new Date(Date.now()-864e5));
+
+/* ═══════════════ GUARDADO ═══════════════ */
+const SAVE_KEY='neon_survival_v1';
+const DEF={shards:0,totalShards:0,xp:0,lvl:1,up:{},best:0,runs:0,crits:0,extracts:0,bestCombo:0,ach:{},
+  lastDaily:'',streak:0,lastIdle:Date.now(),mute:false,doubleWins:0,edge:0,firstTime:true};
+function load(){
+  const d=JSON.parse(JSON.stringify(DEF));
+  try{const j=JSON.parse(localStorage.getItem(SAVE_KEY));if(j&&typeof j==='object'){Object.assign(d,j);d.up=Object.assign({},j.up);d.ach=Object.assign({},j.ach)}}catch(e){}
+  return d;
+}
+let S=load();
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
+
+/* ═══════════════ SONIDO Y VIBRACIÓN ═══════════════ */
+let AC=null;
+function beep(f,dur=.12,type='square',vol=.05,when=0){
+  if(S.mute)return;
+  try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime+when,o=AC.createOscillator(),g=AC.createGain();
+    o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+dur)}catch(e){}
+}
+const SFX={
+  click(){beep(420,.04,'square',.03)},
+  ok(){beep(520,.09);beep(780,.12,'square',.05,.08)},
+  crit(){[523,659,784,1047,1319].forEach((f,i)=>beep(f,.14,'triangle',.07,i*.06))},
+  bad(){beep(170,.28,'sawtooth',.06);beep(120,.3,'sawtooth',.05,.1)},
+  coin(){beep(988,.06,'square',.04);beep(1319,.1,'square',.04,.06)},
+  up(){[392,523,659,784,1047].forEach((f,i)=>beep(f,.15,'triangle',.06,i*.08))},
+  die(){[300,220,160,90].forEach((f,i)=>beep(f,.3,'sawtooth',.06,i*.14))},
+};
+function vib(p){if(!S.mute&&navigator.vibrate){try{navigator.vibrate(p)}catch(e){}}}
+
+/* ═══════════════ EFECTOS VISUALES ═══════════════ */
+let ptr={x:innerWidth/2,y:innerHeight/2};
+addEventListener('pointerdown',e=>{ptr={x:e.clientX,y:e.clientY}},{passive:true});
+function floaty(text,cls='good'){const d=document.createElement('div');d.className='float '+cls;d.textContent=text;d.style.left=clamp(ptr.x,60,innerWidth-60)+'px';d.style.top=(ptr.y-30)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1000)}
+function flash(color){const d=document.createElement('div');d.className='flash';d.style.background=color;document.body.appendChild(d);setTimeout(()=>d.remove(),450)}
+function burst(list=['✦','✧','⚡','💰']){for(let i=0;i<14;i++){const d=document.createElement('div');d.className='part';d.textContent=pick(list);d.style.left=ptr.x+'px';d.style.top=ptr.y+'px';
+  const a=Math.random()*6.28,r=rnd(50,130);d.style.setProperty('--dx',Math.cos(a)*r+'px');d.style.setProperty('--dy',Math.sin(a)*r+'px');document.body.appendChild(d);setTimeout(()=>d.remove(),800)}}
+function shake(){const a=$('#app');a.classList.remove('shake');void a.offsetWidth;a.classList.add('shake')}
+function toast(msg){const d=document.createElement('div');d.className='toast';d.textContent=msg;$('#toasts').appendChild(d);setTimeout(()=>d.remove(),2900)}
+function modal(html){$('#modal').innerHTML=`<div class="mback"><div class="mbox">${html}</div></div>`}
+function closeModal(){$('#modal').innerHTML=''}
+function countUp(el,from,to,ms=600){if(!el)return;const t0=performance.now();(function f(t){const k=clamp((t-t0)/ms,0,1);el.textContent=fmt(from+(to-from)*k);if(k<1)requestAnimationFrame(f)})(t0)}
+
+/* ═══════════════ DATOS DEL JUEGO ═══════════════ */
+const UPS={
+  hp:{n:'Implantes vitales',i:'❤️',d:'+10 salud máxima',max:10,base:20,g:1.5},
+  acc:{n:'Reflejos sinápticos',i:'🎯',d:'+2% de éxito en todo',max:10,base:25,g:1.55},
+  cool:{n:'Disipador térmico',i:'❄️',d:'−5% del calor generado',max:8,base:30,g:1.55},
+  loot:{n:'Algoritmo de botín',i:'💰',d:'+6% de créditos',max:10,base:25,g:1.55},
+  safe:{n:'Protocolo de extracción',i:'🛟',d:'+5% de botín conservado al caer',max:8,base:40,g:1.6},
+  crit:{n:'Overclock',i:'⚡',d:'+2% de críticos',max:8,base:35,g:1.6},
+  idle:{n:'Minero fantasma',i:'⛏️',d:'+0.1 ◈ por minuto offline (máx 8 h)',max:20,base:30,g:1.45},
+  start:{n:'Kit inicial',i:'🎁',d:'Cada misión empieza con un perk al azar',max:1,base:150,g:1},
+};
+const PERKS={
+  deck:{n:'Cyberdeck Mk II',i:'🖥️',d:'+10% de éxito en hackeos',cost:90},
+  spoof:{n:'Spoofer de identidad',i:'🎭',d:'−30% de calor generado',cost:80},
+  vest:{n:'Chaleco reforzado',i:'🦺',d:'−30% de daño recibido',cost:80},
+  magnet:{n:'Imán de créditos',i:'🧲',d:'+25% de créditos',cost:100},
+  nano:{n:'Nanorreparación',i:'💊',d:'+4 de salud por nodo',cost:90},
+  luck:{n:'Suerte de neón',i:'🍀',d:'+12% de críticos',cost:100},
+  fuse:{n:'Fusible de emergencia',i:'🔋',d:'Sobrevives una vez con 30 de salud',cost:130},
+};
+const ACH=[
+  {id:'first',n:'Primer contacto',d:'Completa tu primera extracción',r:15,t:()=>S.extracts>=1},
+  {id:'d10',n:'Bajo el radar',d:'Supera 10 nodos',r:25,t:()=>S.best>=10},
+  {id:'d20',n:'Fantasma de la red',d:'Supera 20 nodos',r:60,t:()=>S.best>=20},
+  {id:'d35',n:'Leyenda del distrito',d:'Supera 35 nodos',r:150,t:()=>S.best>=35},
+  {id:'combo8',n:'Racha neón',d:'Consigue combo ×8',r:30,t:()=>S.bestCombo>=8},
+  {id:'combo15',n:'Imparable',d:'Consigue combo ×15',r:80,t:()=>S.bestCombo>=15},
+  {id:'crit10',n:'Golpe maestro',d:'10 críticos en total',r:30,t:()=>S.crits>=10},
+  {id:'runs10',n:'Adicto a la red',d:'Juega 10 misiones',r:40,t:()=>S.runs>=10},
+  {id:'rich',n:'Banquero clandestino',d:'Reúne 1000 ◈ en total',r:100,t:()=>S.totalShards>=1000},
+  {id:'upg5',n:'Cirujano de chips',d:'Compra 5 mejoras',r:40,t:()=>Object.values(S.up).reduce((a,b)=>a+b,0)>=5},
+  {id:'gamble',n:'Todo o nada',d:'Gana 3 apuestas dobles',r:50,t:()=>S.doubleWins>=3},
+  {id:'edge',n:'Al borde',d:'Sobrevive con calor ≥ 90%',r:50,t:()=>S.edge>=1},
+];
+const TITLES=['Novato','Script Kiddie','Netrunner','Fantasma','Operador','Leyenda'];
+const DAILY=[20,30,45,60,80,110,200];
+
+const lvl=k=>S.up[k]||0;
+const upCost=k=>Math.round(UPS[k].base*Math.pow(UPS[k].g,lvl(k)));
+const xpNeed=l=>60+40*l;
+const title=()=>TITLES[Math.min(TITLES.length-1,Math.floor((S.lvl-1)/3))];
+
+function addXp(n){
+  S.xp+=n;
+  while(S.xp>=xpNeed(S.lvl)){S.xp-=xpNeed(S.lvl);S.lvl++;const r=Math.min(40,5+2*S.lvl);S.shards+=r;S.totalShards+=r;toast(`⭐ ¡Nivel ${S.lvl}! +${r} ◈`);SFX.up();vib([60,40,60])}
+}
+function checkAch(){
+  let any=false;
+  for(const a of ACH){if(!S.ach[a.id]&&a.t()){S.ach[a.id]=1;S.shards+=a.r;S.totalShards+=a.r;toast(`🏆 ${a.n} · +${a.r} ◈`);SFX.up();any=true}}
+  if(any)save();
+}
+function pendingIdle(){
+  const l=lvl('idle');if(!l)return 0;
+  const min=clamp((Date.now()-S.lastIdle)/60000,0,480);
+  return Math.floor(min*.1*l);
+}
+
+/* ═══════════════ ESTADO DE LA MISIÓN ═══════════════ */
+let R=null,END=null,screen='home';
+const has=k=>R&&R.perks.includes(k);
+const maxHp=()=>100+10*lvl('hp');
+const heatMul=()=>Math.max(.2,1-.05*lvl('cool')-(has('spoof')?.3:0))*(1+R.node*.02);
+const dmgMul=()=>has('vest')?.7:1;
+const lootMul=()=>(1+.06*lvl('loot'))*(has('magnet')?1.25:1)*(1+Math.min(R.combo,15)*.05);
+const critCh=()=>.08+.02*lvl('crit')+(has('luck')?.12:0);
+
+function newRun(){
+  R={hp:maxHp(),mhp:maxHp(),heat:0,cr:0,node:1,combo:0,perks:[],cards:[],shop:null,phase:'pick',bonusShards:0,shown:0,
+     last:{ok:null,text:'Te conectas a la red del Sector 4. La lluvia ácida golpea los cristales. Elige con cabeza… o con valor.',chips:[]}};
+  if(lvl('start')){const k=pick(Object.keys(PERKS));R.perks.push(k);R.last.text+=` Tu kit inicial incluye ${PERKS[k].i} ${PERKS[k].n}.`}
+  genCards();
+}
+
+function mk(id){
+  const n=R.node,s=1+n*.08,d=1+n*.07,sc=(a,b)=>[Math.round(a*s),Math.round(b*s)],dm=v=>Math.round(v*d);
+  switch(id){
+    case'hackS':return{id,icon:'🕶️',name:'Hackeo sigiloso',desc:'Poco ruido, botín modesto.',risk:'safe',hack:1,p:.88,rew:sc(22,34),heat:4,fheat:8,dmg:dm(5),ok:'Sacaste unos créditos sin dejar huella.',ko:'Una cámara te enfocó. Abortaste a tiempo.'};
+    case'hackA':return{id,icon:'💥',name:'Hackeo agresivo',desc:'Revienta el ICE por un gran botín.',risk:'high',hack:1,p:.55,rew:sc(70,105),heat:14,fheat:22,dmg:dm(18),ok:'El ICE cedió. ¡Botín enorme, pero con mucho ruido!',ko:'El contraataque del ICE te quemó los nervios.'};
+    case'smug':return{id,icon:'📦',name:'Contrabando',desc:'Mueve mercancía entre sectores.',risk:'mid',p:.68,rew:sc(42,62),heat:8,fheat:14,dmg:dm(10),loseCr:.15,ok:'Entrega completada. Nadie hizo preguntas.',ko:'Te interceptaron y perdiste parte de la carga.'};
+    case'drone':return{id,icon:'🛸',name:'Cazar un dron',desc:'Desmonta un dron y vende las piezas.',risk:'mid',p:.62,rew:sc(50,75),heat:10,fheat:12,dmg:dm(20),ok:'El dron cayó. Piezas vendidas en el mercado negro.',ko:'El dron te atacó antes de apagarse.'};
+    case'chest':return{id,icon:'🔐',name:'Cofre cifrado',desc:'Contenido desconocido: ¿botín, perk o trampa?',risk:'high',kind:'chest',hack:1,p:.5,heat:8,fheat:12,dmg:dm(15),ko:'El cofre estaba trampeado.'};
+    case'heal':return{id,icon:'🩺',name:'Clínica clandestina',desc:'Recupera 30 de salud.',risk:'util',kind:'heal',heal:30,cost:Math.round(25*s)};
+    case'bribe':return{id,icon:'🤝',name:'Sobornar a NetSec',desc:'Reduce el calor en 30.',risk:'util',kind:'bribe',cool:30,cost:Math.round(35*s)};
+    case'gamble':return{id,icon:'🎲',name:'Doble o nada',desc:'Apuesta tu botín: duplícalo (hasta +600) o pierde la mitad.',risk:'high',kind:'gamble',p:.5};
+    case'bossA':return{id,icon:'👁️',name:'Jefe: ataque frontal',desc:'ICE Centinela. Máximo botín, máximo riesgo.',risk:'high',kind:'boss',hack:1,p:.5,rew:sc(250,350),heat:20,fheat:28,dmg:dm(35),ok:'¡El Centinela cayó! La red entera tiembla.',ko:'El Centinela te aplastó con su ICE.'};
+    case'bossB':return{id,icon:'🕸️',name:'Jefe: infiltración',desc:'Colarte por los puntos ciegos del Centinela.',risk:'mid',kind:'boss',hack:1,p:.62,rew:sc(180,260),heat:12,fheat:20,dmg:dm(25),ok:'Desactivaste al Centinela desde dentro.',ko:'Te detectó a mitad de la infiltración.'};
+    case'bossC':return{id,icon:'📡',name:'Jefe: sabotaje remoto',desc:'Lento y seguro: ataca sus servidores.',risk:'safe',kind:'boss',hack:1,p:.72,rew:sc(140,200),heat:10,fheat:16,dmg:dm(20),ok:'Sus servidores ardieron. El Centinela se apagó.',ko:'El sabotaje rebotó contra tu consola.'};
+  }
+}
+function wpick(w,ex){const e=Object.entries(w).filter(([k])=>!ex.includes(k));const t=e.reduce((a,[,v])=>a+v,0);let r=Math.random()*t;for(const[k,v]of e){if((r-=v)<=0)return k}return e[0][0]}
+function genCards(){
+  const n=R.node;R.shop=null;R.cards=[];
+  if(n%10===0){R.phase='pick';R.cards=['bossA','bossB','bossC'].map(mk);return}
+  if(n%5===0){const av=Object.keys(PERKS).filter(k=>!has(k));
+    if(av.length){R.phase='shop';R.shop=shuffle(av).slice(0,3).map(k=>({k,price:Math.round(PERKS[k].cost*(1+n*.03))}));return}}
+  R.phase='pick';
+  const w={hackS:3,hackA:3,smug:2,drone:2};
+  if(n>=3)w.chest=1.5;
+  if(R.hp<R.mhp*.7)w.heal=2;
+  if(R.heat>40)w.bribe=2;
+  if(R.cr>=100)w.gamble=1;
+  const ids=[];
+  if(R.heat>=70)ids.push('bribe');
+  if(R.hp<=R.mhp*.35)ids.push('heal');
+  if(!ids.includes('hackS')&&ids.length<3)ids.push('hackS');
+  while(ids.length<3)ids.push(wpick(w,ids));
+  R.cards=shuffle(ids.slice(0,3)).map(mk);
+}
+function chance(c){if(c.p==null)return null;return clamp(c.p+.02*lvl('acc')+(c.hack&&has('deck')?.10:0)-Math.min(.3,.008*(R.node-1)),.05,.95)}
+function canDo(c){if((c.cost||0)>R.cr)return false;if(c.kind==='gamble'&&R.cr<30)return false;return true}
+
+/* ═══════════════ RESOLUCIÓN ═══════════════ */
+function addPerk(k){R.perks.push(k)}
+function chestReward(chips){
+  const r=Math.random(),s=1+R.node*.1;
+  const give=(a,b)=>{const g=Math.round(rnd(a,b)*s*lootMul());R.cr+=g;chips.push({k:'cr',v:g})};
+  const av=Object.keys(PERKS).filter(k=>!has(k));
+  const gainPerk=()=>{const k=pick(av);addPerk(k);return`${PERKS[k].i} ${PERKS[k].n}`};
+  if(r<.55){give(40,70);return'<span class="r-common">Botín común.</span>'}
+  if(r<.80){if(av.length)return`<span class="r-rare">Botín RARO:</span> ${gainPerk()}.`;give(90,130);return'<span class="r-rare">Botín RARO.</span>'}
+  if(r<.95){const b=ri(8,16);R.bonusShards+=b;give(70,110);chips.push({k:'sh',v:b});return'<span class="r-epic">Botín ÉPICO:</span> datos cifrados valiosos.'}
+  give(250,400);R.bonusShards+=20;chips.push({k:'sh',v:20});
+  return`<span class="r-leg">¡BOTÍN LEGENDARIO!</span>${av.length?' '+gainPerk()+'.':''}`;
+}
+function resolve(i){
+  if(!R||R.over||R.phase!=='pick')return;
+  const c=R.cards[i];if(!c||!canDo(c))return;
+  SFX.click();
+  const chips=[];let ok=null,text='',crit=false;
+  if(c.cost){R.cr-=c.cost;chips.push({k:'cr',v:-c.cost})}
+  if(c.kind==='heal'){const h=Math.min(c.heal,R.mhp-R.hp);R.hp+=h;chips.push({k:'hp',v:h});text='Un cirujano sin licencia te remienda. Te sientes mejor.';SFX.coin();floaty('+'+h+' ❤️','good')}
+  else if(c.kind==='bribe'){const h=Math.min(c.cool,R.heat);R.heat-=h;chips.push({k:'heat',v:-h});text='El agente miró hacia otro lado. Tu expediente se enfrió.';SFX.coin();floaty('−'+h+' 🔥','good')}
+  else{
+    const p=chance(c),win=Math.random()<p;ok=win;
+    if(c.kind==='gamble'){
+      if(win){const g=Math.min(R.cr,600);R.cr+=g;S.doubleWins++;chips.push({k:'cr',v:g});text='¡La suerte te sonríe! Tu botín se duplica.';floaty('+$'+fmt(g),'gold')}
+      else{const l=Math.floor(R.cr*.5);R.cr-=l;R.combo=0;chips.push({k:'cr',v:-l});text='Perdiste la apuesta. La casa siempre gana… a veces.';floaty('−$'+fmt(l),'bad')}
+    }else if(win){
+      let t=c.ok||'';
+      if(c.kind==='chest'){t=chestReward(chips)}
+      else{
+        crit=Math.random()<critCh();
+        const g=Math.round(rnd(c.rew[0],c.rew[1])*lootMul()*(crit?2:1));R.cr+=g;chips.push({k:'cr',v:g});floaty('+$'+fmt(g),crit?'gold':'good');
+      }
+      const h=Math.round(c.heat*heatMul());R.heat+=h;if(h)chips.push({k:'heat',v:h});
+      R.combo++;S.bestCombo=Math.max(S.bestCombo,R.combo);
+      if(c.kind==='boss'){const av=Object.keys(PERKS).filter(k=>!has(k));if(av.length){const k=pick(av);addPerk(k);t+=` Recompensa del jefe: ${PERKS[k].i} ${PERKS[k].n}.`}else{R.cr+=100;chips.push({k:'cr',v:100});t+=' Recompensa del jefe: +$100.'}}
+      text=t;
+    }else{
+      const dmg=Math.round(c.dmg*dmgMul());R.hp-=dmg;chips.push({k:'hp',v:-dmg});
+      const h=Math.round(c.fheat*heatMul());R.heat+=h;chips.push({k:'heat',v:h});
+      if(c.loseCr){const l=Math.floor(R.cr*c.loseCr);if(l){R.cr-=l;chips.push({k:'cr',v:-l})}}
+      R.combo=0;text=c.ko;floaty('−'+dmg+' ❤️','bad');
+    }
+    if(win){if(crit){S.crits++;SFX.crit();vib([40,30,80]);flash('rgba(251,191,36,.55)');burst(['✦','⭐','💰','⚡'])}else{SFX.ok();vib(30);burst()}}
+    else if(c.kind!=='gamble'||!win){SFX.bad();vib([80,40,120]);flash('rgba(239,68,68,.5)');shake()}
+  }
+  /* desgaste de la ciudad */
+  R.hp=Math.min(R.mhp,R.hp+(has('nano')?4:0)-(2+Math.floor(R.node/8)));
+  R.heat=Math.max(0,R.heat-2);
+  if(R.hp<=0&&has('fuse')){R.perks.splice(R.perks.indexOf('fuse'),1);R.hp=30;toast('🔋 ¡Fusible de emergencia activado!');SFX.up()}
+  R.last={ok,text,chips,crit};
+  if(R.hp<=0)return endRun('dead');
+  if(R.heat>=100)return endRun('caught');
+  if(R.heat>=90)S.edge=1;
+  addXp(2+Math.min(15,Math.floor(R.node/2)));
+  R.node++;genCards();
+  checkAch();save();render();
+}
+function previewShards(){return Math.floor(R.cr*.12*(1+(R.node-1)*.02)+R.bonusShards)}
+function endRun(kind){
+  const base=R.cr*.12*(1+(R.node-1)*.02)+R.bonusShards;
+  const keep=kind==='extract'?1:clamp(.4+.05*lvl('safe'),0,1);
+  const shards=Math.floor(base*keep),cleared=R.node-1,prevBest=S.best;
+  S.shards+=shards;S.totalShards+=shards;S.runs++;S.best=Math.max(S.best,cleared);
+  if(kind==='extract')S.extracts++;
+  addXp(Math.floor(shards/4)+cleared);
+  END={kind,shards,cleared,cr:R.cr,prevBest,record:cleared>prevBest&&cleared>0,combo:R.combo};
+  R.over=true;checkAch();save();
+  if(kind==='extract'){SFX.up();burst(['💰','◈','⭐'])}else{SFX.die();vib([200,80,300]);flash('rgba(239,68,68,.6)');shake()}
+  screen='end';render();
+}
+
+/* ═══════════════ RENDER ═══════════════ */
+const ICON={cr:'💳',hp:'❤️',heat:'🔥',sh:'◈'};
+function chipH(c){const good=c.k==='heat'?c.v<0:c.v>0;return`<span class="chip ${good?'g':'b'}">${ICON[c.k]} ${c.v>0?'+':''}${fmt(c.v)}</span>`}
+function bar(p,cls,extra=''){return`<div class="bar ${cls} ${extra}"><i style="width:${clamp(p,0,100)}%"></i></div>`}
+
+function homeHTML(){
+  const need=xpNeed(S.lvl),pend=pendingIdle(),daily=S.lastDaily!==today();
+  const afford=Object.keys(UPS).some(k=>lvl(k)<UPS[k].max&&S.shards>=upCost(k));
+  return`<div class="logo">NEON SURVIVAL</div><div class="sub">Infíltrate. Arriesga. Extrae. Una más…</div>
+  <div class="panel"><div class="row"><b>⭐ Nv ${S.lvl} · ${title()}</b><span class="sp"></span><b style="color:var(--y)">◈ ${fmt(S.shards)}</b></div>
+    <div style="margin-top:8px">${bar(S.xp*100/need,'xp')}</div>
+    <div class="row small" style="margin-top:6px"><span>🏅 Récord: ${S.best} nodos</span><span class="sp"></span><span>Misiones: ${S.runs}</span></div></div>
+  <button class="btn big" data-act="play">▶ INFILTRARSE</button>
+  ${pend>=1?`<button class="btn green" data-act="idle">⛏️ Tu minero recolectó ${fmt(pend)} ◈ — RECOGER</button>`:''}
+  ${daily?`<button class="btn gold" data-act="daily">🎁 Recompensa diaria disponible<span class="dot"></span></button>`:''}
+  <button class="btn ghost" data-act="ups">🔧 Mejoras permanentes${afford?'<span class="dot"></span>':''}</button>
+  <div class="grid2"><button class="btn ghost" data-act="ach">🏆 Logros (${Object.keys(S.ach).length}/${ACH.length})</button>
+  <button class="btn ghost" data-act="mute">${S.mute?'🔇 Sonido: NO':'🔊 Sonido: SÍ'}</button></div>
+  <div class="small" style="text-align:center;margin-top:10px"><a href="#" data-act="reset" style="color:var(--m)">Borrar progreso</a></div>`;
+}
+function cardH(c,i){
+  const dis=!canDo(c),p=chance(c);
+  const rk={safe:'SEGURO',mid:'MEDIO',high:'RIESGO',util:'UTIL'}[c.risk];
+  let meta='';
+  if(c.kind==='heal')meta+=`<span class="chip g">❤️ +${c.heal}</span>`;
+  if(c.kind==='bribe')meta+=`<span class="chip g">🔥 −${c.cool}</span>`;
+  if(c.rew){const m=lootMul();meta+=`<span class="chip g">💰 ≈${fmt(c.rew[0]*m)}–${fmt(c.rew[1]*m)}</span>`}
+  if(c.kind==='chest')meta+=`<span class="chip g">🎁 loot</span>`;
+  if(c.kind==='gamble')meta+=`<span class="chip n">×2 / −50%</span>`;
+  if(c.heat)meta+=`<span class="chip b">🔥 +${Math.round(c.heat*heatMul())}</span>`;
+  if(c.dmg)meta+=`<span class="chip b">❤️ −${Math.round(c.dmg*dmgMul())} si falla</span>`;
+  if(c.cost)meta+=`<span class="chip ${c.cost>R.cr?'b':'n'}">💳 −${c.cost}</span>`;
+  return`<button class="card ${c.risk}" data-act="pick" data-i="${i}" ${dis?'disabled':''}>
+    <div class="ci">${c.icon}</div>
+    <div class="cb"><div class="cn">${c.name}<span class="badge ${c.risk}">${rk}</span></div><div class="cd">${c.desc}</div><div>${meta}</div></div>
+    ${p!=null?`<div class="cp">${Math.round(p*100)}%</div>`:''}</button>`;
+}
+function runHTML(){
+  const n=R.node,boss=n%10===0,shop=R.phase==='shop';
+  const toNext=5-(n%5),nextSp=boss?'¡Enfréntate al guardián!':((n+toNext)%10===0?`Jefe en ${toNext} nodo(s)`:`Tienda en ${toNext} nodo(s)`);
+  const l=R.last,chips=(l.chips||[]).map(chipH).join('');
+  const perks=R.perks.map(k=>`<span title="${PERKS[k].n}: ${PERKS[k].d}">${PERKS[k].i}</span>`).join('');
+  let body='';
+  if(shop){
+    body=`<div class="node">🛒 MERCADO NEGRO</div><div class="nodesub">Compra perks para esta misión</div>`+
+      R.shop.map((s,i)=>{const p=PERKS[s.k];return`<button class="card util" data-act="buyPerk" data-k="${s.k}" ${R.cr<s.price?'disabled':''}>
+        <div class="ci">${p.i}</div><div class="cb"><div class="cn">${p.n}</div><div class="cd">${p.d}</div></div><div class="cp">$${s.price}</div></button>`}).join('')+
+      `<button class="btn ghost" data-act="skipShop">Continuar →</button>`;
+  }else{
+    body=`<div class="node">${boss?'☠️ NODO '+n+' · JEFE':'NODO '+n}</div><div class="nodesub">${nextSp}</div>`+R.cards.map(cardH).join('');
+  }
+  const abandon=R.node===1&&R.cr===0&&!R.bonusShards;
+  return`<div class="panel hud">
+    <div class="row"><span>❤️ ${Math.ceil(R.hp)}/${R.mhp}</span>${bar(R.hp*100/R.mhp,'hp')}</div>
+    <div class="row"><span>🔥 ${Math.floor(R.heat)}%</span>${bar(R.heat,'heat',R.heat>=70?'danger':'')}</div>
+    <div class="credits"><small>BOTÍN</small><b id="cr">${fmt(R.shown)}</b><span class="combo">${R.combo>=2?'🔥 ×'+R.combo+' combo':''}</span></div>
+    ${perks?`<div class="perks">${perks}</div>`:''}</div>
+  ${R.heat>=70?'<div class="warn">⚠ NetSec te está rastreando</div>':''}
+  <div class="res ${l.ok===true?'ok':l.ok===false?'bad':'info'}">${l.crit?'<b class="critt">¡CRÍTICO ×2!</b> ':''}${l.text}<div>${chips}</div></div>
+  ${body}
+  <div class="dock"><div class="in"><button class="btn ${abandon?'ghost':'gold'}" data-act="extract">${abandon?'← Abandonar':'💰 EXTRAER y cobrar ◈'+fmt(previewShards())}</button></div></div>`;
+}
+function endHTML(){
+  const e=END,ok=e.kind==='extract';
+  const names={extract:'EXTRACCIÓN EXITOSA',dead:'SISTEMA CAÍDO',caught:'NETSEC TE ATRAPÓ'};
+  const near=!e.record&&e.prevBest>0?`<div class="small" style="text-align:center;margin-top:6px">Te faltaron ${e.prevBest-e.cleared+1} nodo(s) para batir tu récord de ${e.prevBest}.</div>`:'';
+  const keepTxt=ok?'':`<div class="small" style="text-align:center">Conservaste ${Math.round((.4+.05*lvl('safe'))*100)}% del botín. Mejora «Protocolo de extracción».</div>`;
+  return`<div class="big-end ${ok?'end-ok':'end-bad'}">${names[e.kind]}</div>
+  ${e.record?'<div class="warn" style="color:var(--y)">🏅 ¡NUEVO RÉCORD!</div>':''}
+  <div class="panel"><div class="shardsbig">+◈ <span id="sh">0</span></div>${keepTxt}${near}
+   <div class="grid2" style="margin-top:12px"><div class="stat"><b>${e.cleared}</b><small>Nodos superados</small></div><div class="stat"><b>$${fmt(e.cr)}</b><small>Botín reunido</small></div></div></div>
+  <button class="btn big" data-act="play">⚡ UNA MÁS</button>
+  <button class="btn ghost" data-act="ups">🔧 Gastar ◈ en mejoras (${fmt(S.shards)})</button>
+  <button class="btn ghost" data-act="home">Menú</button>`;
+}
+function upsHTML(){
+  return`<h2>🔧 MEJORAS</h2><div class="panel row"><b style="color:var(--y)">◈ ${fmt(S.shards)}</b><span class="sp"></span><span class="small">Permanentes entre misiones</span></div>`+
+  Object.entries(UPS).map(([k,u])=>{const L=lvl(k),mx=L>=u.max,cost=upCost(k);
+    return`<div class="panel"><div class="row"><b>${u.i} ${u.n}</b><span class="sp"></span><span class="pill">Nv ${L}/${u.max}</span></div>
+    <div class="small">${u.d}</div><div class="pips">${Array.from({length:u.max},(_,j)=>`<i class="${j<L?'on':''}"></i>`).join('')}</div>
+    <button class="btn ${mx?'ghost':''}" style="margin:10px 0 0" data-act="buyUp" data-k="${k}" ${mx||S.shards<cost?'disabled':''}>${mx?'MÁXIMO':'Mejorar · ◈ '+fmt(cost)}</button></div>`}).join('')+
+  `<div class="dock"><div class="in"><button class="btn ghost" data-act="home">← Volver</button></div></div>`;
+}
+function achHTML(){
+  return`<h2>🏆 LOGROS</h2>`+ACH.map(a=>{const d=S.ach[a.id];return`<div class="panel row" style="${d?'':'opacity:.55'}"><div style="font-size:1.6rem">${d?'🏆':'🔒'}</div><div class="sp"><b>${a.n}</b><div class="small">${a.d}</div></div><span class="pill">◈ ${a.r}</span></div>`}).join('')+
+  `<div class="dock"><div class="in"><button class="btn ghost" data-act="home">← Volver</button></div></div>`;
+}
+function render(){
+  const app=$('#app');
+  app.innerHTML=screen==='home'?homeHTML():screen==='run'?runHTML():screen==='end'?endHTML():screen==='ups'?upsHTML():achHTML();
+  if(screen==='run'){const el=$('#cr');countUp(el,R.shown,R.cr);R.shown=R.cr}
+  if(screen==='end')countUp($('#sh'),0,END.shards,900);
+  window.scrollTo(0,0);
+}
+
+/* ═══════════════ ACCIONES ═══════════════ */
+function showDaily(){
+  const yest=S.lastDaily===yesterday(),next=yest?S.streak+1:1,idx=(next-1)%7;
+  modal(`<h2 style="margin-top:0">🎁 RECOMPENSA DIARIA</h2><div class="small" style="text-align:center">Racha: día ${next}. ¡No faltes mañana o la perderás!</div>
+    <div class="days">${DAILY.map((r,i)=>`<div class="day ${i===idx?'now':i<idx?'done':''}">Día ${i+1}<b>◈${r}</b></div>`).join('')}</div>
+    <button class="btn gold" data-act="claim">Reclamar ◈ ${DAILY[idx]}</button>`);
+}
+const ACT={
+  play(){newRun();screen='run';render()},
+  pick(d){resolve(+d.i)},
+  extract(){if(!R)return;if(R.node===1&&R.cr===0&&!R.bonusShards){screen='home';render();return}endRun('extract')},
+  home(){screen='home';render()},
+  ups(){screen='ups';render()},
+  ach(){screen='ach';render()},
+  mute(){S.mute=!S.mute;save();render()},
+  buyUp(d){const k=d.k;if(lvl(k)>=UPS[k].max)return;const c=upCost(k);if(S.shards<c)return;S.shards-=c;S.up[k]=lvl(k)+1;SFX.coin();vib(30);checkAch();save();render()},
+  buyPerk(d){const s=R.shop.find(x=>x.k===d.k);if(!s||R.cr<s.price)return;R.cr-=s.price;addPerk(s.k);R.shop=R.shop.filter(x=>x!==s);SFX.coin();floaty('-$'+s.price,'bad');R.last={ok:null,text:`Compraste ${PERKS[s.k].i} ${PERKS[s.k].n}.`,chips:[{k:'cr',v:-s.price}]};render()},
+  skipShop(){R.node++;R.phase='pick';genCards();R.last={ok:null,text:'Dejas atrás el mercado y vuelves a las calles de neón.',chips:[]};render()},
+  idle(){const p=pendingIdle();S.shards+=p;S.totalShards+=p;S.lastIdle=Date.now();SFX.coin();toast(`⛏️ +${fmt(p)} ◈`);checkAch();save();render()},
+  daily(){showDaily()},
+  claim(){const yest=S.lastDaily===yesterday();S.streak=yest?S.streak+1:1;const r=DAILY[(S.streak-1)%7];S.lastDaily=today();S.shards+=r;S.totalShards+=r;SFX.up();toast(`🎁 +${r} ◈ · Racha ${S.streak}`);closeModal();checkAch();save();render()},
+  closeModal(){closeModal()},
+  reset(){if(confirm('¿Borrar TODO tu progreso? No se puede deshacer.')){localStorage.removeItem(SAVE_KEY);S=load();R=null;screen='home';render()}},
+};
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
+  e.preventDefault();ptr={x:e.clientX||ptr.x,y:e.clientY||ptr.y};
+  const f=ACT[b.dataset.act];if(f)f(b.dataset);
+});
+
+/* ═══════════════ INICIO ═══════════════ */
+render();
+if(S.firstTime){
+  S.firstTime=false;save();
+  modal(`<h2 style="margin-top:0">⚡ BIENVENIDO, RUNNER</h2>
+   <p style="line-height:1.55">Cada misión eliges entre 3 acciones: <b>más riesgo = más botín</b>.<br>
+   🔥 Si el <b>calor</b> llega a 100% o tu <b>salud</b> a 0, caes y pierdes parte del botín.<br>
+   💰 <b>Extrae</b> cuando quieras para cobrar ◈ y comprar mejoras permanentes.<br>
+   🔥 Encadena aciertos para subir el <b>combo</b> y ganar más.</p>
+   <button class="btn" data-act="closeModal">¡A la red!</button>`);
+}
+if('serviceWorker' in navigator&&location.protocol.startsWith('http')){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+</script>
+</body>
+</html>

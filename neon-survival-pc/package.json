@@ -1,0 +1,27 @@
+{
+  "name": "neon-survival",
+  "version": "1.0.0",
+  "description": "RPG cyberpunk de riesgo y recompensa",
+  "main": "main.js",
+  "author": "TuNombre",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.tunombre.neonsurvival",
+    "productName": "Neon Survival",
+    "files": ["main.js", "index.html", "manifest.json", "sw.js", "icon-*.png"],
+    "win": {
+      "target": "portable",
+      "icon": "icon-512.png"
+    },
+    "portable": {
+      "artifactName": "NeonSurvival-${version}.exe"
+    }
+  }
+}
